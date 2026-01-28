@@ -1,5 +1,4 @@
 import dotenv from 'dotenv';
-import path from 'path';
 
 // Load environment variables
 dotenv.config();
@@ -36,7 +35,7 @@ export const config = {
       'audio/x-wav',
       'audio/mpeg',
       'audio/mp3',
-    ],
+    ] as string[],
   },
 
   // Storage
@@ -63,6 +62,6 @@ export const config = {
   text: {
     maxLength: 200,
   },
-} as const;
+};
 
 export type Config = typeof config;
