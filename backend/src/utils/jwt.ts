@@ -6,16 +6,14 @@ export interface TokenPayload {
 }
 
 export function generateToken(ownerId: string): string {
-  return jwt.sign(
-    { ownerId } as TokenPayload,
-    config.jwtSecret,
-    { expiresIn: '30d' } as jwt.SignOptions
-  );
+  const secret = config.jwt.secret;
+  return jwt.sign({ ownerId }, secret, { expiresIn: '30d' });
 }
 
 export function verifyToken(token: string): TokenPayload | null {
   try {
-    return jwt.verify(token, config.jwtSecret) as TokenPayload;
+    const secret = config.jwt.secret;
+    return jwt.verify(token, secret) as TokenPayload;
   } catch {
     return null;
   }
