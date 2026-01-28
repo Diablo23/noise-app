@@ -9,7 +9,7 @@ const fileFilter = (
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ): void => {
-  const allowedTypes: string[] = [...config.upload.allowedMimeTypes];
+  const allowedTypes = ['audio/webm', 'audio/ogg', 'audio/wav', 'audio/wave', 'audio/x-wav', 'audio/mpeg', 'audio/mp3'];
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
