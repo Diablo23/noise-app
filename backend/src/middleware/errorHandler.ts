@@ -44,11 +44,14 @@ export function errorHandler(
   console.error('Error:', err);
 
   if (err instanceof ApiError) {
-    res.status(err.statusCode).json({
+    const response: { error: string; message: string; details?: unknown } = {
       error: err.name,
       message: err.message,
-      ...(err.details && { details: err.details }),
-    });
+    };
+    if (err.details) {
+      response.details = err.details;
+    }
+    res.status(err.statusCode).json(response);
     return;
   }
 
