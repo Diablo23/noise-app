@@ -2,23 +2,21 @@ import multer from 'multer';
 import { Request, Response, NextFunction } from 'express';
 import { config } from '../config';
 
-// Configure multer for memory storage (we'll process and save ourselves)
 const storage = multer.memoryStorage();
 
-// File filter to validate MIME types
 const fileFilter = (
   req: Request,
   file: Express.Multer.File,
   cb: multer.FileFilterCallback
 ): void => {
-  if (config.upload.allowedMimeTypes.includes(file.mimetype)) {
+  const allowedTypes: string[] = [...config.upload.allowedMimeTypes];
+  if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error(`Invalid file type. Allowed types: ${config.upload.allowedMimeTypes.join(', ')}`));
+    cb(new Error(`Invalid file type. Allowed types: ${allowedTypes.join(', ')}`));
   }
 };
 
-// Create multer instance
 const upload = multer({
   storage,
   fileFilter,
@@ -28,10 +26,8 @@ const upload = multer({
   },
 });
 
-// Single file upload middleware
 export const uploadSingleAudio = upload.single('file');
 
-// Error handling middleware for multer errors
 export function handleUploadError(
   err: Error,
   req: Request,
