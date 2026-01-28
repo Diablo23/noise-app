@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: noise-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: noise_user
+      POSTGRES_PASSWORD: noise_password
+      POSTGRES_DB: noise_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U noise_user -d noise_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MinIO (S3-compatible storage) - Optional for production-like setup
+  minio:
+    image: minio/minio:latest
+    container_name: noise-minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    command: server /data --console-address ":9001"
+    profiles:
+      - s3  # Only start with: docker-compose --profile s3 up
+
+  # Application (optional - for production deployment)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: noise-app
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://noise_user:noise_password@postgres:5432/noise_db?schema=public
+      JWT_SECRET: ${JWT_SECRET:-change-this-in-production}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:3000}
+    volumes:
+      - uploads_data:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - production  # Only start with: docker-compose --profile production up
+
+volumes:
+  postgres_data:
+    driver: local
+  minio_data:
+    driver: local
+  uploads_data:
+    driver: local
+
+networks:
+  default:
+    name: noise-network

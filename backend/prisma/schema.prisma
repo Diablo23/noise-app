@@ -1,0 +1,59 @@
+// Prisma schema for NOISE application
+// Supports PostgreSQL database
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enum for visualization type
+enum VisualFormat {
+  waveform
+  bars
+  spectrum
+}
+
+// Enum for font types
+enum FontType {
+  rubik_glitch  @map("rubik-glitch")
+  kapakana
+  shadows       @map("shadows")
+}
+
+// AudioItem - represents recorded audio on the board
+model AudioItem {
+  id           String       @id @default(uuid())
+  ownerId      String       @map("owner_id")
+  audioUrl     String       @map("audio_url")
+  durationMs   Int?         @map("duration_ms")
+  visualFormat VisualFormat @default(waveform) @map("visual_format")
+  x            Float
+  y            Float
+  scale        Float        @default(100)
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  @@index([ownerId])
+  @@map("audio_items")
+}
+
+// TextItem - represents text caption on the board
+model TextItem {
+  id        String   @id @default(uuid())
+  ownerId   String   @map("owner_id")
+  text      String
+  font      FontType @default(rubik_glitch)
+  opacity   Float    @default(1)
+  x         Float
+  y         Float
+  scale     Float    @default(100)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([ownerId])
+  @@map("text_items")
+}
