@@ -19,6 +19,7 @@ import textItemsRoutes from './routes/textItems';
 
 // Create Express app
 const app = express();
+app.set('trust proxy', 1);
 
 // Create HTTP server for WebSocket
 const httpServer = createServer(app);
