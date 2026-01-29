@@ -57,9 +57,14 @@ class LocalStorage implements StorageService {
 
     try {
       await fs.promises.unlink(filepath);
-    } catch (error) {
-      // File might not exist, log but don't throw
-      console.warn(`Could not delete file: ${filepath}`, error);
+    } catch (error: any) {
+      // File might not exist - that's OK, just log it
+      if (error.code === 'ENOENT') {
+        console.log('File already deleted or not found:', filepath);
+      } else {
+        console.warn('Could not delete file:', filepath, error);
+      }
+      // Don't throw - let the delete operation continue
     }
   }
 
@@ -71,31 +76,17 @@ class LocalStorage implements StorageService {
 
 /**
  * S3 storage implementation (placeholder for production)
- * To use with AWS S3 or MinIO, implement this class properly
  */
 class S3Storage implements StorageService {
   constructor() {
-    // Initialize S3 client here
-    // const { S3Client } = require('@aws-sdk/client-s3');
     console.log('S3 Storage initialized (placeholder - implement for production)');
   }
 
   async saveFile(buffer: Buffer, originalName: string, mimeType: string): Promise<string> {
-    // Implement S3 upload
-    // const command = new PutObjectCommand({
-    //   Bucket: config.storage.s3.bucket,
-    //   Key: `audio/${uuidv4()}${ext}`,
-    //   Body: buffer,
-    //   ContentType: mimeType,
-    // });
-    // await s3Client.send(command);
-    // return `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
-
     throw new Error('S3 storage not fully implemented. Use local storage for development.');
   }
 
   async deleteFile(fileUrl: string): Promise<void> {
-    // Implement S3 delete
     throw new Error('S3 storage not fully implemented.');
   }
 
