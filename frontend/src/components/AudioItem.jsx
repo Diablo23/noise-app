@@ -3,6 +3,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react';
 const AudioItem = ({ 
   item, 
   isSelected, 
+  isOwner,
   onSelect, 
   onUpdate, 
   sceneRef 
@@ -181,9 +182,10 @@ const AudioItem = ({
     }
   };
 
-  // Drag handlers
+  // Drag handlers - only allow if owner
   const handleMouseDown = (e) => {
     if (e.target.tagName === 'BUTTON') return;
+    if (!isOwner) return;
     
     e.preventDefault();
     onSelect(id);
@@ -198,6 +200,7 @@ const AudioItem = ({
 
   const handleTouchStart = (e) => {
     if (e.target.tagName === 'BUTTON') return;
+    if (!isOwner) return;
     
     onSelect(id);
     setIsDragging(true);
@@ -267,7 +270,7 @@ const AudioItem = ({
 
   return (
     <div
-      className={`absolute cursor-grab no-select ${isDragging ? 'cursor-grabbing' : ''} ${isSelected ? 'selected-item' : ''}`}
+      className={`absolute ${isOwner ? 'cursor-grab' : 'cursor-default'} no-select ${isDragging ? 'cursor-grabbing' : ''} ${isSelected ? 'selected-item' : ''}`}
       style={{
         left: x,
         top: y,
@@ -290,7 +293,7 @@ const AudioItem = ({
           className="w-full h-full"
         />
         
-        {/* Play/Pause button */}
+        {/* Play/Pause button - everyone can play */}
         <button
           onClick={(e) => {
             e.stopPropagation();
