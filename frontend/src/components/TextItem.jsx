@@ -4,6 +4,7 @@ import { FONTS } from './FontDropdown';
 const TextItem = ({ 
   item, 
   isSelected, 
+  isOwner,
   onSelect, 
   onUpdate, 
   sceneRef 
@@ -27,7 +28,10 @@ const TextItem = ({
 
   const handleDoubleClick = (e) => {
     e.stopPropagation();
-    setIsEditing(true);
+    // Only allow editing if user owns this item
+    if (isOwner) {
+      setIsEditing(true);
+    }
   };
 
   const handleBlur = () => {
@@ -44,12 +48,15 @@ const TextItem = ({
   };
 
   const handleTextChange = (e) => {
-    onUpdate(id, { text: e.target.value });
+    if (isOwner) {
+      onUpdate(id, { text: e.target.value });
+    }
   };
 
-  // Drag handlers
+  // Drag handlers - only allow dragging if owner
   const handleMouseDown = (e) => {
     if (isEditing) return;
+    if (!isOwner) return;
     
     e.preventDefault();
     onSelect(id);
@@ -64,6 +71,7 @@ const TextItem = ({
 
   const handleTouchStart = (e) => {
     if (isEditing) return;
+    if (!isOwner) return;
     
     onSelect(id);
     setIsDragging(true);
@@ -132,7 +140,7 @@ const TextItem = ({
   return (
     <div
       ref={itemRef}
-      className={`absolute cursor-grab no-select ${isDragging ? 'cursor-grabbing' : ''} ${isSelected ? 'selected-item' : ''}`}
+      className={`absolute ${isOwner ? 'cursor-grab' : 'cursor-default'} no-select ${isDragging ? 'cursor-grabbing' : ''} ${isSelected ? 'selected-item' : ''}`}
       style={{
         left: x,
         top: y,
@@ -146,7 +154,7 @@ const TextItem = ({
       }}
       onDoubleClick={handleDoubleClick}
     >
-      {isEditing ? (
+      {isEditing && isOwner ? (
         <input
           ref={inputRef}
           type="text"
