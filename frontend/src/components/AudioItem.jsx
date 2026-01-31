@@ -5,7 +5,8 @@ const AudioItem = ({
   isSelected, 
   onSelect, 
   onUpdate, 
-  sceneRef 
+  sceneRef,
+  canEdit = true 
 }) => {
   const canvasRef = useRef(null);
   const audioRef = useRef(null);
@@ -187,6 +188,10 @@ const AudioItem = ({
     
     e.preventDefault();
     onSelect(id);
+    
+    // Only allow dragging if user owns this item
+    if (!canEdit) return;
+    
     setIsDragging(true);
 
     const rect = e.currentTarget.getBoundingClientRect();
@@ -200,6 +205,10 @@ const AudioItem = ({
     if (e.target.tagName === 'BUTTON') return;
     
     onSelect(id);
+    
+    // Only allow dragging if user owns this item
+    if (!canEdit) return;
+    
     setIsDragging(true);
 
     const touch = e.touches[0];
@@ -267,7 +276,7 @@ const AudioItem = ({
 
   return (
     <div
-      className={`absolute cursor-grab no-select ${isDragging ? 'cursor-grabbing' : ''} ${isSelected ? 'selected-item' : ''}`}
+      className={`absolute no-select ${canEdit ? 'cursor-grab' : 'cursor-default'} ${isDragging ? 'cursor-grabbing' : ''} ${isSelected ? 'selected-item' : ''}`}
       style={{
         left: x,
         top: y,
