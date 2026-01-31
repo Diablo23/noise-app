@@ -6,7 +6,8 @@ const TextItem = ({
   isSelected, 
   onSelect, 
   onUpdate, 
-  sceneRef 
+  sceneRef,
+  canEdit = true 
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -27,7 +28,10 @@ const TextItem = ({
 
   const handleDoubleClick = (e) => {
     e.stopPropagation();
-    setIsEditing(true);
+    // Only allow editing if user owns this item
+    if (canEdit) {
+      setIsEditing(true);
+    }
   };
 
   const handleBlur = () => {
@@ -53,6 +57,10 @@ const TextItem = ({
     
     e.preventDefault();
     onSelect(id);
+    
+    // Only allow dragging if user owns this item
+    if (!canEdit) return;
+    
     setIsDragging(true);
 
     const rect = e.currentTarget.getBoundingClientRect();
@@ -66,6 +74,10 @@ const TextItem = ({
     if (isEditing) return;
     
     onSelect(id);
+    
+    // Only allow dragging if user owns this item
+    if (!canEdit) return;
+    
     setIsDragging(true);
 
     const touch = e.touches[0];
@@ -132,7 +144,7 @@ const TextItem = ({
   return (
     <div
       ref={itemRef}
-      className={`absolute cursor-grab no-select ${isDragging ? 'cursor-grabbing' : ''} ${isSelected ? 'selected-item' : ''}`}
+      className={`absolute no-select ${canEdit ? 'cursor-grab' : 'cursor-default'} ${isDragging ? 'cursor-grabbing' : ''} ${isSelected ? 'selected-item' : ''}`}
       style={{
         left: x,
         top: y,
