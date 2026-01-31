@@ -1,13 +1,15 @@
 import React, { forwardRef } from 'react';
 import AudioItem from './AudioItem';
 import TextItem from './TextItem';
+import { isOwner } from '../api';
 
 const Scene = forwardRef(({ 
   items, 
   selectedId, 
   onSelectItem, 
   onUpdateItem, 
-  onDeselect 
+  onDeselect,
+  currentOwnerId 
 }, ref) => {
   const handleSceneClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -22,6 +24,8 @@ const Scene = forwardRef(({
       onClick={handleSceneClick}
     >
       {items.map((item) => {
+        const canEdit = isOwner(item);
+        
         if (item.type === 'audio') {
           return (
             <AudioItem
@@ -31,6 +35,7 @@ const Scene = forwardRef(({
               onSelect={onSelectItem}
               onUpdate={onUpdateItem}
               sceneRef={ref}
+              canEdit={canEdit}
             />
           );
         }
@@ -43,6 +48,7 @@ const Scene = forwardRef(({
               onSelect={onSelectItem}
               onUpdate={onUpdateItem}
               sceneRef={ref}
+              canEdit={canEdit}
             />
           );
         }
